@@ -59,20 +59,26 @@ export default function Dashboard() {
             <div style={{ padding:10, borderBottom:"1px solid #2a2a2a", fontWeight:700 }}>{s.toUpperCase()}</div>
             <div style={{ padding:12 }}>
               {grouped[s].map(a => (
-                <Card key={a.id} style={{ marginBottom:10 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between" }}>
+                <Card key={a.id} style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <div>
-                      <div style={{fontWeight:700}}>{a.company}</div>
-                      <div style={{opacity:.8,fontSize:13}}>{a.role}</div>
+                      <div style={{ fontWeight: 700 }}>{a.company}</div>
+                      <div style={{ opacity: 0.8, fontSize: 13 }}>{a.role}</div>
                     </div>
-                    <StatusBadge status={a.status}/>
+                    <StatusBadge status={a.status} />
                   </div>
-                  <div style={{ marginTop:8, fontSize:12, opacity:.75 }}>Applied: {a.dateApplied}</div>
-                  {next(a.status) && (
-                    <button style={{marginTop:10}} onClick={() => move(a, next(a.status))}>
-                      Move to {next(a.status)}
-                    </button>
-                  )}
+                  <div style={{ marginTop: 8, fontSize: 12, opacity: 0.75 }}>Applied: {a.dateApplied}</div>
+                  <div style={{ marginTop: 10 }}>
+                    <select
+                      value={a.status}
+                      onChange={(e) => move(a, e.target.value)}
+                      style={{ padding: "4px 8px", borderRadius: 4 }}
+                    >
+                      {STATUSES.map(s => (
+                        <option key={s} value={s} disabled={s === a.status}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
                 </Card>
               ))}
               {grouped[s].length === 0 && <div style={{color:"#9aa0a6",fontSize:13}}>No items</div>}

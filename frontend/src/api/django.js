@@ -9,12 +9,16 @@ export const listApplications = async () => {
 
 export const createApplication = async (data) => {
   const res = await axios.post(`${BASE_URL}/applications/`, {
-  company_name: data.company,
-  position: data.role,
-  date_applied: data.dateApplied,
-  status: data.status,
-  notes: data.notes
+    company_name: data.company,
+    position: data.role,
+    date_applied: data.dateApplied,
+    status: data.status,
+    notes: data.notes
 });
+  return res.data;
+};
 
+export const updateApplication = async (id, data) => {
+  const res = await axios.patch(`${BASE_URL}/applications/${id}/`, data);
   return res.data;
 };
