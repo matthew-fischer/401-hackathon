@@ -20,7 +20,8 @@ class Application(models.Model):
 
 class Resume(models.Model):
     title = models.CharField(max_length=100)
-    content = models.TextField()
+    content_md = models.TextField()
+    application = models.OneToOneField(Application, on_delete=models.CASCADE)
     is_master = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
