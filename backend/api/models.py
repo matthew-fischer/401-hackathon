@@ -5,8 +5,7 @@ from django.utils import timezone
 class Application(models.Model):
     STAGE_CHOICES = [
         ('applied', 'Applied'),
-        ('phone', 'Phone Interview'),
-        ('onsite', 'On-site Interview'),
+        ('interview', 'Interview'),
         ('offer', 'Offer'),
         ('rejected', 'Rejected'),
     ]
@@ -47,6 +46,22 @@ class Response(models.Model):
 
     def __str__(self):
         return f"{self.type} for {self.application.position} at {self.application.company_name}"
+    
+class Communication(models.Model):
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name="communications"
+    )
+    date_received = models.DateField()
+    type = models.CharField(
+        max_length=20,
+        choices=[
+            ('interview', 'Interview Invitation'),
+            ('rejection', 'Rejection'),
+            ('offer', 'Job Offer'),
+            ('communication', 'Communication'),
+        ]
+    )
+    notes = models.TextField(blank=True, null=True)
 
 class Reminder(models.Model):
     CHANNELS = (("in-app","In App"), ("email","Email"))
@@ -67,7 +82,5 @@ class Reminder(models.Model):
     kind = models.CharField(max_length=40, default="custom")
     
     def mark_sent(self): 
-        self.sent_at = timezone.now(); self.save(update_fields=["sent_at"])
-
-
+        self.sent_at = timezone.now(); self.save(update_fields=["sent_at"])   
 
