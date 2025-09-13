@@ -1,0 +1,20 @@
+import axios from "axios";
+
+const BASE_URL = "http://127.0.0.1:8000/api"; // Django API base
+
+export const listApplications = async () => {
+  const res = await axios.get(`${BASE_URL}/applications/`);
+  return res.data;
+};
+
+export const createApplication = async (data) => {
+  const res = await axios.post(`${BASE_URL}/applications/`, {
+  company_name: data.company,
+  position: data.role,
+  date_applied: data.dateApplied,
+  status: data.status,
+  notes: data.notes
+});
+
+  return res.data;
+};

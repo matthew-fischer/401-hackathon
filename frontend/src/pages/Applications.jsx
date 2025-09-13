@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import * as API from "../api/mock";
+import * as API from "../api/django"; // make sure path is correct
 import StatusBadge from "../components/StatusBadge";
 import Card from "../components/Card";
 import CommunicationsModal from "../components/CommunicationsModal";
@@ -15,21 +15,42 @@ export default function Applications() {
   });
   const [selectedApplication, setSelectedApplication] = useState(null);
 
+  // Fetch applications from Django
   useEffect(() => {
-    API.listApplications().then(setApps);
+    API.listApplications()
+      .then((data) => {
+        const mapped = data.map((a) => ({
+          ...a,
+          company: a.company_name,
+          role: a.position,
+          dateApplied: a.date_applied,
+        }));
+        setApps(mapped);
+      })
+      .catch(console.error);
   }, []);
 
   const submit = async (e) => {
     e.preventDefault();
-    const created = await API.createApplication(form);
-    setApps((prev) => [created, ...prev]);
-    setForm({
-      company: "",
-      role: "",
-      dateApplied: new Date().toISOString().slice(0, 10),
-      status: "applied",
-      notes: "",
-    });
+    try {
+      const created = await API.createApplication(form);
+      const mapped = {
+        ...created,
+        company: created.company_name,
+        role: created.position,
+        dateApplied: created.date_applied,
+      };
+      setApps((prev) => [mapped, ...prev]);
+      setForm({
+        company: "",
+        role: "",
+        dateApplied: new Date().toISOString().slice(0, 10),
+        status: "applied",
+        notes: "",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -83,6 +104,7 @@ export default function Applications() {
             </button>
           </form>
         </Card>
+
         <Card>
           <table
             style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
@@ -114,6 +136,7 @@ export default function Applications() {
           </table>
         </Card>
       </div>
+
       {selectedApplication && (
         <CommunicationsModal
           application={selectedApplication}
