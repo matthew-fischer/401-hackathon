@@ -1,40 +1,53 @@
 import { useState, useEffect } from "react";
 
-const COMM_TYPES = [
-  "Communication",
-  "Interview Invitation",
-  "Rejection",
-  "Job Offer",
-];
+const COMM_TYPES = ["communication", "interview", "rejection", "offer"];
 
-export default function CommunicationsModal({ application, onClose, onSave }) {
+export default function CommunicationsModal({ application, onClose }) {
   const [communications, setCommunications] = useState([]);
   const [form, setForm] = useState({
-    date: new Date().toISOString().slice(0, 10),
-    type: "Communication",
+    date_received: new Date().toISOString().slice(0, 10),
+    type: "communication",
     notes: "",
   });
+  const BASE_URL = "http://127.0.0.1:8000/api";
 
+  // Fetch communications from backend
   useEffect(() => {
-    if (application.communications) {
-      setCommunications(application.communications);
-    } else {
-      setCommunications([]);
-    }
+    if (!application) return;
+
+    fetch(`${BASE_URL}/applications/${application.id}/communications/`)
+      .then((res) => res.json())
+      .then((data) => setCommunications(data))
+      .catch(console.error);
   }, [application]);
 
-  const handleAdd = () => {
-    const newComm = {
-      id: Date.now(),
-      ...form,
-    };
-    setCommunications((prev) => [newComm, ...prev]);
-    setForm({
-      date: new Date().toISOString().slice(0, 10),
-      type: "Communication",
-      notes: "",
-    });
-    if (onSave) onSave(newComm);
+  const handleAdd = async () => {
+    if (!application) return;
+
+    const payload = { ...form };
+
+    try {
+      const res = await fetch(
+        `${BASE_URL}/applications/${application.id}/communications/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to save communication");
+
+      const newComm = await res.json();
+      setCommunications((prev) => [newComm, ...prev]);
+      setForm({
+        date_received: new Date().toISOString().slice(0, 10),
+        type: "communication",
+        notes: "",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (!application) return null;
@@ -70,16 +83,16 @@ export default function CommunicationsModal({ application, onClose, onSave }) {
         }}
       >
         <h2 style={{ marginBottom: 16 }}>
-          {application.company} - {application.role}
+          {application.company_name} - {application.position}
         </h2>
 
         <div style={{ marginBottom: 16 }}>
           <h4 style={{ marginBottom: 8 }}>Communications</h4>
           {communications.length === 0 && <p>No communications yet.</p>}
           <ul style={{ listStyle: "none", padding: 0 }}>
-            {communications.map((c, idx) => (
-              <li key={idx} style={{ marginBottom: 8 }}>
-                <strong>{c.date}</strong> - {c.type}
+            {communications.map((c) => (
+              <li key={c.id} style={{ marginBottom: 8 }}>
+                <strong>{c.date_received}</strong> - {c.type}
                 {c.notes && `: ${c.notes}`}
               </li>
             ))}
@@ -89,15 +102,19 @@ export default function CommunicationsModal({ application, onClose, onSave }) {
         <div style={{ marginBottom: 16, display: "grid", gap: 8 }}>
           <input
             type="date"
-            value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            value={form.date_received}
+            onChange={(e) =>
+              setForm({ ...form, date_received: e.target.value })
+            }
           />
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
           >
             {COMM_TYPES.map((t) => (
-              <option key={t}>{t}</option>
+              <option key={t} value={t}>
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </option>
             ))}
           </select>
           <textarea

@@ -37,3 +37,20 @@ class Response(models.Model):
 
     def __str__(self):
         return f"{self.type} for {self.application.position} at {self.application.company_name}"
+    
+class Communication(models.Model):
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name="communications"
+    )
+    date_received = models.DateField()
+    type = models.CharField(
+        max_length=20,
+        choices=[
+            ('interview', 'Interview Invitation'),
+            ('rejection', 'Rejection'),
+            ('offer', 'Job Offer'),
+            ('communication', 'Communication'),
+        ]
+    )
+    notes = models.TextField(blank=True, null=True)
+
