@@ -3,7 +3,7 @@ import * as API from "../api/django";
 import StatusBadge from "../components/StatusBadge";
 import Card from "../components/Card";
 
-const STATUSES = ["applied","phone","onsite","offer","rejected"];
+const STATUSES = ["applied","interview","offer","rejected"];
 
 export default function Dashboard() {
   const [apps, setApps] = useState([]);
@@ -24,7 +24,7 @@ export default function Dashboard() {
   }, []);
 
   const grouped = useMemo(() => {
-    const g = { applied:[], phone:[], onsite:[], offer:[], rejected:[] };
+    const g = { applied:[], interview:[], offer:[], rejected:[] };
     apps.forEach(a => g[a.status]?.push(a));
     return g;
   }, [apps]);
