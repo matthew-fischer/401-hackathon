@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Application, Resume, Response
+from .models import Application, Resume, Response, Reminder
 
 class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,3 +14,9 @@ class ResumeSerializer(serializers.ModelSerializer):
 class ResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Response
+
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = "__all__"
+        read_only_fields = ("id","sent_at","created_at")

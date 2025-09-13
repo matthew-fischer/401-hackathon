@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Application(models.Model):
     STAGE_CHOICES = [
@@ -15,6 +16,15 @@ class Application(models.Model):
     date_applied = models.DateField()
     status = models.CharField(max_length=20, choices=STAGE_CHOICES, default='applied')
     notes = models.TextField(blank=True, null=True)
+
+    status_changed_at = models.DateTimeField(default=timezone.now)  # NEW
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Application.objects.get(pk=self.pk)
+            if old.status != self.status:
+                self.status_changed_at = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.position} at {self.company_name}"
@@ -37,3 +47,27 @@ class Response(models.Model):
 
     def __str__(self):
         return f"{self.type} for {self.application.position} at {self.application.company_name}"
+
+class Reminder(models.Model):
+    CHANNELS = (("in-app","In App"), ("email","Email"))
+    application = models.ForeignKey(Application, related_name="reminders", on_delete=models.CASCADE)
+    message = models.CharField(max_length=255, blank=True)
+    due_at = models.DateTimeField()
+    channel = models.CharField(max_length=20, choices=CHANNELS, default="in-app")
+    email = models.EmailField(blank=True)        
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    KIND = (
+    ("custom","Custom"),
+    ("auto_applied_followup","Applied Follow-up"),
+    ("auto_offer_decision","Offer Decision"),
+    )
+    
+    kind = models.CharField(max_length=40, default="custom")
+    
+    def mark_sent(self): 
+        self.sent_at = timezone.now(); self.save(update_fields=["sent_at"])
+
+
+
