@@ -1,21 +1,56 @@
 import { useEffect, useState } from "react";
-import * as API from "../api/mock";
+import * as API from "../api/django"; // make sure path is correct
 import StatusBadge from "../components/StatusBadge";
 import Card from "../components/Card";
 
 export default function Applications() {
   const [apps, setApps] = useState([]);
   const [form, setForm] = useState({
-    company:"", role:"", dateApplied:new Date().toISOString().slice(0,10), status:"applied", notes:""
+    company: "",
+    role: "",
+    dateApplied: new Date().toISOString().slice(0,10),
+    status: "applied",
+    notes: ""
   });
 
-  useEffect(() => { API.listApplications().then(setApps); }, []);
+  // Fetch applications from Django
+  useEffect(() => {
+    API.listApplications()
+      .then(data => {
+        // Map backend field names to frontend fields
+        const mapped = data.map(a => ({
+          ...a,
+          company: a.company_name,
+          role: a.position,
+          dateApplied: a.date_applied
+        }));
+        setApps(mapped);
+      })
+      .catch(console.error);
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
-    const created = await API.createApplication(form);
-    setApps(prev => [created, ...prev]);
-    setForm({ company:"", role:"", dateApplied:new Date().toISOString().slice(0,10), status:"applied", notes:"" });
+    try {
+      const created = await API.createApplication(form);
+      // Map new application fields as well
+      const mapped = {
+        ...created,
+        company: created.company_name,
+        role: created.position,
+        dateApplied: created.date_applied
+      };
+      setApps(prev => [mapped, ...prev]);
+      setForm({
+        company: "",
+        role: "",
+        dateApplied: new Date().toISOString().slice(0,10),
+        status: "applied",
+        notes: ""
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -38,9 +73,11 @@ export default function Applications() {
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:14 }}>
           <thead><tr><th>Company</th><th>Role</th><th>Date</th><th>Status</th></tr></thead>
           <tbody>
-            {apps.map(a=>(
+            {apps.map(a => (
               <tr key={a.id} style={{ borderTop:"1px solid #2a2a2a" }}>
-                <td>{a.company}</td><td>{a.role}</td><td>{a.dateApplied}</td>
+                <td>{a.company}</td>
+                <td>{a.role}</td>
+                <td>{a.dateApplied}</td>
                 <td><StatusBadge status={a.status}/></td>
               </tr>
             ))}
@@ -50,4 +87,3 @@ export default function Applications() {
     </div>
   );
 }
-

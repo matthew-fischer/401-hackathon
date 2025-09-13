@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 class Application(models.Model):
     STAGE_CHOICES = [
         ('applied', 'Applied'),
-        ('phone', 'Phone Interview'),
-        ('onsite', 'On-site Interview'),
+        ('interview', 'Interview'),
         ('offer', 'Offer'),
         ('rejected', 'Rejected'),
     ]
