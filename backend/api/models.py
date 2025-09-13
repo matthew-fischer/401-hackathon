@@ -10,7 +10,6 @@ class Application(models.Model):
         ('rejected', 'Rejected'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
     date_applied = models.DateField()
