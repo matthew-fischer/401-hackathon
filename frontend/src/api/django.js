@@ -31,4 +31,12 @@ export const listReminders = async () => {
   const res = await axios.get(`${BASE_URL}/reminders/`);
   return res.data;
 };
-// function to upload a resume pdf file
+
+export const createReminder = async (payload) =>
+  (await axios.post(`${BASE_URL}/reminders/`, payload)).data;
+
+export const deleteReminder = async (id) =>
+  axios.delete(`${BASE_URL}/reminders/${id}/`);
+
+export const updateReminder = async (id, patch) =>
+  (await axios.patch(`${BASE_URL}/reminders/${id}/`, patch)).data;
