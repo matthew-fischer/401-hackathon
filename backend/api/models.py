@@ -15,6 +15,13 @@ class Application(models.Model):
     date_applied = models.DateField()
     status = models.CharField(max_length=20, choices=STAGE_CHOICES, default='applied')
     notes = models.TextField(blank=True, null=True)
+    resume = models.OneToOneField(
+        'Resume',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='application'
+    )
 
     def __str__(self):
         return f"{self.position} at {self.company_name}"
@@ -22,12 +29,6 @@ class Application(models.Model):
 class Resume(models.Model):
     title = models.CharField(max_length=100)
     content_md = models.TextField()
-    application = models.OneToOneField(
-        Application,
-        on_delete=models.CASCADE,
-        null=True,       # ✅ allow missing application
-        blank=True       # ✅ allow empty in forms
-    )
     is_master = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
