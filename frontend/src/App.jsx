@@ -35,7 +35,7 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          {["Dashboard", "Applications", "Resumes"].map((text) => (
+          {["Dashboard", "Applications", "Reminders", "Resumes"].map((text) => (
             <Link
               key={text}
               to={text === "Dashboard" ? "/" : `/${text.toLowerCase()}`}
