@@ -1,19 +1,15 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
-<<<<<<< HEAD
-from .models import Application, Resume, Response, Reminder
-from .serializers import ApplicationSerializer, ResumeSerializer, ResponseSerializer, ReminderSerializer
-from django.utils import timezone
-=======
 from rest_framework.response import Response as DRFResponse
-from .models import Application, Resume, Response, Communication
-from .serializers import ApplicationSerializer, ResumeSerializer, ResponseSerializer, CommunicationSerializer
+from .models import Application, Resume, Response, Communication, Reminder
+from .serializers import ApplicationSerializer, ResumeSerializer, ResponseSerializer, CommunicationSerializer, ReminderSerializer
+from django.utils import timezone
+from rest_framework import permissions
 
 class CommunicationViewSet(viewsets.ModelViewSet):
     queryset = Communication.objects.all()
     serializer_class = CommunicationSerializer
->>>>>>> origin/dev
 
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()   # no filtering by user

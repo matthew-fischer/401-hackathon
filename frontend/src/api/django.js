@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const BASE_URL = "http://127.0.0.1:8000/api"; // Django API base
 
 export const listApplications = async () => {
@@ -20,5 +18,10 @@ export const createApplication = async (data) => {
 
 export const updateApplication = async (id, data) => {
   const res = await axios.patch(`${BASE_URL}/applications/${id}/`, data);
+  return res.data;
+};
+
+export const listReminders = async () => {
+  const res = await axios.get(`${BASE_URL}/reminders/`);
   return res.data;
 };

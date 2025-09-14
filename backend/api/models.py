@@ -16,15 +16,6 @@ class Application(models.Model):
     status = models.CharField(max_length=20, choices=STAGE_CHOICES, default='applied')
     notes = models.TextField(blank=True, null=True)
 
-    status_changed_at = models.DateTimeField(default=timezone.now)  # NEW
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            old = Application.objects.get(pk=self.pk)
-            if old.status != self.status:
-                self.status_changed_at = timezone.now()
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.position} at {self.company_name}"
 
