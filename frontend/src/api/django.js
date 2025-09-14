@@ -22,3 +22,9 @@ export const updateApplication = async (id, data) => {
   const res = await axios.patch(`${BASE_URL}/applications/${id}/`, data);
   return res.data;
 };
+
+export const deleteApplication = async (id) => {
+  await axios.delete(`${BASE_URL}/applications/${id}/`);
+};
+
+// function to upload a resume pdf file
