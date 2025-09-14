@@ -14,6 +14,12 @@ import pdfplumber
 from markdownify import markdownify as md
 import markdown2
 from weasyprint import HTML
+from marker.converters.pdf import PdfConverter
+from marker.models import create_model_dict
+from marker.output import text_from_rendered
+
+# Initialize once (expensive if re-created every call)
+converter = PdfConverter(artifact_dict=create_model_dict())
 
 class CommunicationViewSet(viewsets.ModelViewSet):
     queryset = Communication.objects.all()
@@ -58,16 +64,17 @@ class ResponseViewSet(viewsets.ModelViewSet):
 
 # ---------- Helpers ----------
 def pdf_to_markdown(pdf_path):
-    text = ""
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-    return md(text)
-
+    """
+    Convert a PDF file into Markdown using marker.
+    """
+    rendered = converter(pdf_path)
+    text, _, _ = text_from_rendered(rendered)
+    return text  # already plain text / markdown-like
 
 def markdown_to_pdf(markdown_text, output_file):
+    """
+    Convert Markdown text into a PDF.
+    """
     html = markdown2.markdown(markdown_text)
     HTML(string=html).write_pdf(output_file)
 
@@ -77,7 +84,7 @@ def markdown_to_pdf(markdown_text, output_file):
 @parser_classes([MultiPartParser, FormParser])
 def pdf_to_markdown_view(request):
     """
-    Upload a PDF resume, convert it to Markdown,
+    Upload a PDF resume, convert it to Markdown with marker,
     and store in the Resume model.
     """
     pdf_file = request.FILES.get('file')
@@ -94,8 +101,10 @@ def pdf_to_markdown_view(request):
         tmp_path = tmp.name
 
     # Convert PDF → Markdown
-    markdown_text = pdf_to_markdown(tmp_path)
-    os.unlink(tmp_path)
+    try:
+        markdown_text = pdf_to_markdown(tmp_path)
+    finally:
+        os.unlink(tmp_path)
 
     # Attach to application if provided
     application = None
