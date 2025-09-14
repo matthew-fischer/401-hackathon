@@ -6,8 +6,8 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
-from .models import Application, Resume, Response, Communication
-from .serializers import ApplicationSerializer, ResumeSerializer, ResponseSerializer, CommunicationSerializer
+from .models import Application, Resume, Response, Communication, Reminder
+from .serializers import ApplicationSerializer, ResumeSerializer, ResponseSerializer, CommunicationSerializer, ReminderSerializer
 import os
 import tempfile
 import pdfplumber
@@ -17,6 +17,7 @@ from weasyprint import HTML
 from marker.converters.pdf import PdfConverter
 from marker.models import create_model_dict
 from marker.output import text_from_rendered
+from django.utils import timezone
 
 # Initialize once (expensive if re-created every call)
 converter = PdfConverter(artifact_dict=create_model_dict())
@@ -45,6 +46,21 @@ class ApplicationViewSet(viewsets.ModelViewSet):
                 serializer.save(application=app)
                 return DRFResponse(serializer.data, status=201)
             return DRFResponse(serializer.errors, status=400)
+
+class ReminderViewSet(viewsets.ModelViewSet):
+    queryset = Reminder.objects.all().order_by("-due_at")
+    serializer_class = ReminderSerializer
+    permission_classes = [AllowAny]
+
+    # GET /api/reminders/due/
+    @action(detail=False, methods=["get"])
+    def due(self, request):
+        now = timezone.now()
+        qs = Reminder.objects.filter(sent_at__isnull=True, due_at__lte=now)
+        data = ReminderSerializer(qs, many=True).data
+        # mark them as sent so we don't show twice
+        qs.update(sent_at=now)
+        return Response(data)
 
 class ResumeViewSet(viewsets.ModelViewSet):
     queryset = Resume.objects.all()

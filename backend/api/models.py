@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Application(models.Model):
     STAGE_CHOICES = [
@@ -58,4 +59,25 @@ class Communication(models.Model):
         ]
     )
     notes = models.TextField(blank=True, null=True)
+
+class Reminder(models.Model):
+    CHANNELS = (("in-app","In App"), ("email","Email"))
+    application = models.ForeignKey(Application, related_name="reminders", on_delete=models.CASCADE)
+    message = models.CharField(max_length=255, blank=True)
+    due_at = models.DateTimeField()
+    channel = models.CharField(max_length=20, choices=CHANNELS, default="in-app")
+    email = models.EmailField(blank=True)        
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    KIND = (
+    ("custom","Custom"),
+    ("auto_applied_followup","Applied Follow-up"),
+    ("auto_offer_decision","Offer Decision"),
+    )
+    
+    kind = models.CharField(max_length=40, default="custom")
+    
+    def mark_sent(self): 
+        self.sent_at = timezone.now(); self.save(update_fields=["sent_at"])   
 
