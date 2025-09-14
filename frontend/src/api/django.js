@@ -32,4 +32,8 @@ export const deleteApplication = async (id) => {
   await axios.delete(`${BASE_URL}/applications/${id}/`);
 };
 
+export const listReminders = async () => {
+  const res = await axios.get(`${BASE_URL}/reminders/`);
+  return res.data;
+};
 // function to upload a resume pdf file
