@@ -1,10 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function Resumes() {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [markdown, setMarkdown] = useState("");
+
+  // Fetch existing resume on mount
+  useEffect(() => {
+    const fetchResume = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/resumes/1/"); // adjust endpoint
+        if (!res.ok) throw new Error("Failed to fetch resume");
+
+        const data = await res.json();
+        if (data.content_md) {
+          setMarkdown(data.content_md);
+          setTitle(data.title || "");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchResume();
+  }, []);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -29,8 +49,6 @@ export default function Resumes() {
       if (!res.ok) throw new Error("Upload failed");
 
       const data = await res.json();
-      console.log("Response:", data);
-
       if (data.content_md) {
         setMarkdown(data.content_md);
       } else {
@@ -49,79 +67,77 @@ export default function Resumes() {
         Upload your PDF resume and view the converted Markdown version.
       </p>
 
-      <div
-        style={{
-          background: "#f9f9f9",
-          padding: "20px",
-          borderRadius: "12px",
-          border: "1px solid #ddd",
-          marginBottom: "24px",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Resume Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+      {/* Only show upload form if no existing resume */}
+      {!markdown && (
+        <div
           style={{
-            display: "block",
-            marginBottom: "12px",
-            padding: "10px",
-            width: "100%",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          style={{ display: "block", marginBottom: "12px" }}
-        />
-
-        <button
-          onClick={handleUpload}
-          style={{
-            background: "#4f46e5",
-            color: "#fff",
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
+            background: "#f9f9f9",
+            padding: "20px",
+            borderRadius: "12px",
+            border: "1px solid #ddd",
+            marginBottom: "24px",
           }}
         >
-          Upload Resume
-        </button>
-      </div>
+          <input
+            type="text"
+            placeholder="Resume Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{
+              display: "block",
+              marginBottom: "12px",
+              padding: "10px",
+              width: "100%",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
 
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            style={{ display: "block", marginBottom: "12px" }}
+          />
+
+          <button
+            onClick={handleUpload}
+            style={{
+              background: "#4f46e5",
+              color: "#fff",
+              padding: "10px 18px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Upload Resume
+          </button>
+        </div>
+      )}
+
+      {/* Show converted resume if it exists */}
       {markdown && (
-  <div
-    style={{
-      background: "#fff",
-      padding: "24px",
-      border: "1px solid #ddd",
-      borderRadius: "12px",
-      boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-      maxHeight: "500px",   // 👈 fixed height
-      overflowY: "auto",    // 👈 scroll inside
-    }}
-  >
-    <h3 style={{ fontSize: "22px", marginBottom: "16px" }}>
-      Converted Resume
-    </h3>
-    <div
-      style={{
-        lineHeight: "1.6",
-        fontSize: "16px",
-        color: "#333",
-      }}
-    >
-      <ReactMarkdown>{markdown}</ReactMarkdown>
-    </div>
-  </div>
-)}
+        <div
+          style={{
+            background: "#fff",
+            padding: "24px",
+            border: "1px solid #ddd",
+            borderRadius: "12px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+            maxHeight: "500px",
+            overflowY: "auto",
+          }}
+        >
+          <h3 style={{ fontSize: "22px", marginBottom: "16px" }}>
+            Converted Resume
+          </h3>
+          <div style={{ lineHeight: "1.6", fontSize: "16px", color: "#333" }}>
+            <ReactMarkdown>{markdown}</ReactMarkdown>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
