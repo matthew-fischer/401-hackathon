@@ -5,20 +5,72 @@ import Resumes from "./pages/Resumes.jsx";
 
 export default function App() {
   return (
-    <div style={{ color:"#eee", background:"#0b0b0b", minHeight:"100vh" }}>
-      <nav style={{ display:"flex", gap:12, padding:12, borderBottom:"1px solid #333" }}>
-        <Link to="/">Dashboard</Link>
-        <Link to="/applications">Applications</Link>
-        <Link to="/resumes">Resumes</Link>
+    <div
+      style={{
+        color: "#eee",
+        background: "#0b0b0b",
+        minHeight: "100vh",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      {/* Full-width sticky navbar */}
+      <nav
+        style={{
+          width: "100%",
+          background: "#121212",
+          borderBottom: "1px solid #333",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "flex",
+            gap: 24,
+            padding: "12px 24px",
+            alignItems: "center",
+          }}
+        >
+          {["Dashboard", "Applications", "Resumes"].map((text) => (
+            <Link
+              key={text}
+              to={text === "Dashboard" ? "/" : `/${text.toLowerCase()}`}
+              style={{
+                textDecoration: "none",
+                color: "#eee",
+                fontWeight: 500,
+                padding: "6px 12px",
+                borderRadius: 6,
+                transition: "background 0.2s ease, color 0.2s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#1a1a1a")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              {text}
+            </Link>
+          ))}
+        </div>
       </nav>
-      <div style={{ padding:16 }}>
+
+      {/* Main content */}
+      <main
+        style={{
+          padding: 24,
+          maxWidth: 1200,
+          margin: "0 auto",
+          background: "#0b0b0b",
+          minHeight: "calc(100vh - 60px)", // adjust if navbar height changes
+        }}
+      >
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/resumes" element={<Resumes />} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 }
-

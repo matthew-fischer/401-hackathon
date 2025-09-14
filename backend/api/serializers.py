@@ -1,25 +1,42 @@
 from rest_framework import serializers
-from .models import Application, Resume, Response, Communication
+from .models import Application, Resume, Response, Communication, Reminder
 
 class CommunicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Communication
         fields = ['id', 'date_received', 'type', 'notes']
 
-class ApplicationSerializer(serializers.ModelSerializer):
-    communications = CommunicationSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Application
-        fields = ['id', 'company_name', 'position', 'date_applied', 'status', 'notes', 'communications']
-
-
 class ResumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resume
-        fields = '__all__'
+        fields = ['id', 'title', 'content_md']
+        read_only_fields = ['id']
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    communications = CommunicationSerializer(many=True, read_only=True)
+    resume = ResumeSerializer(required=False)  # nested resume for creation
+
+    class Meta:
+        model = Application
+        fields = ['id', 'company_name', 'position', 'date_applied', 'status', 'notes', 'communications', 'resume']
+
+    def create(self, validated_data):
+        resume_data = validated_data.pop('resume', None)
+        # Create the application first
+        application = Application.objects.create(**validated_data)
+        if resume_data:
+            # Create a new Resume and link it to the application
+            resume = Resume.objects.create(**resume_data)
+            application.resume = resume
+            application.save()
+        return application
 
 class ResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Response
         fields = '__all__'
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = "__all__"
+        read_only_fields = ("id","sent_at","created_at")

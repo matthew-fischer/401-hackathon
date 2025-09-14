@@ -1,13 +1,14 @@
 # tracker/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ApplicationViewSet, ResumeViewSet, ResponseViewSet, CommunicationViewSet, pdf_to_markdown_view, markdown_to_pdf_view
+from .views import ApplicationViewSet, ResumeViewSet, ResponseViewSet, CommunicationViewSet, pdf_to_markdown_view, markdown_to_pdf_view, ReminderViewSet
 
 router = DefaultRouter()
 router.register(r'applications', ApplicationViewSet, basename='applications')
 router.register(r'resumes', ResumeViewSet, basename='resumes')
 router.register(r'responses', ResponseViewSet, basename='responses')
 router.register(r'communications', CommunicationViewSet, basename='communications')
+router.register(r'reminders', ReminderViewSet, basename='reminders')
 
 urlpatterns = [
     path('', include(router.urls)),

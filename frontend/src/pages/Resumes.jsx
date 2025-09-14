@@ -10,7 +10,7 @@ export default function Resumes() {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/resumes/1"); // adjust endpoint
+        const res = await fetch("http://localhost:8000/api/resumes/1/"); // adjust endpoint
         if (!res.ok) throw new Error("Failed to fetch resume");
 
         const data = await res.json();
