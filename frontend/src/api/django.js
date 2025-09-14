@@ -7,14 +7,19 @@ export const listApplications = async () => {
   return res.data;
 };
 
-export const createApplication = async (data) => {
+export const createApplication = async (data, resumeMarkdown) => {
+  console.log("Creating application");
+  console.log(resumeMarkdown);
   const res = await axios.post(`${BASE_URL}/applications/`, {
     company_name: data.company,
     position: data.role,
     date_applied: data.dateApplied,
     status: data.status,
-    notes: data.notes
-});
+    notes: data.notes,
+    resume: resumeMarkdown
+      ? { title: `${data.company} Resume`, content_md: resumeMarkdown }
+      : null,
+  });
   return res.data;
 };
 
